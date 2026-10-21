@@ -1,18 +1,24 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "network.h"
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+
+  delay(1000);
+
+  Serial.println();
+  Serial.println("================================");
+  Serial.println("       HomeSafe Firmware");
+  Serial.println("       Network Test v1");
+  Serial.println("================================");
+
+  HomeSafe::Network::begin();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  HomeSafe::Network::update();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  // Keep the loop responsive for future sensor tasks.
+  delay(1);
 }
