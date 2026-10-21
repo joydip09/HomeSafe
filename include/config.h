@@ -21,11 +21,11 @@ constexpr uint8_t FLAME_DO = 2;
 
 constexpr uint8_t PIR_OUT = 15;
 
-constexpr uint8_t LED_RED = 37;
-constexpr uint8_t LED_GREEN = 36;
-constexpr uint8_t LED_BLUE = 35;
+constexpr uint8_t LED_RED = 40;
+constexpr uint8_t LED_GREEN = 39;
+constexpr uint8_t LED_BLUE = 38;
 
-constexpr uint8_t BUZZER = 20;
+constexpr uint8_t BUZZER = 21;
 // constexpr uint8_t BUTTON = 0;
 } // namespace Pins
 
