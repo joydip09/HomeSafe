@@ -47,6 +47,11 @@ constexpr uint32_t CLIENT_HEARTBEAT_INTERVAL_MS = 10000;
 namespace Safety {
 constexpr uint32_t HAZARD_CONFIRMATION_MS = 1000;
 constexpr uint32_t ALARM_COOLDOWN_MS = 5000;
+
+// Temporary raw ADC thresholds.
+// Calibrate these using actual sensor readings before deployment.
+constexpr int MQ2_ADC_THRESHOLD = 2000;
+constexpr int MQ135_ADC_THRESHOLD = 2000;
 } // namespace Safety
 
 namespace Audio {

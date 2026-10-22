@@ -2,6 +2,7 @@
 
 #include "network.h"
 #include "outputs.h"
+#include "safety.h"
 #include "sensors.h"
 
 void testOutputs() {
@@ -91,13 +92,15 @@ void setup() {
   HomeSafe::Network::begin();
   HomeSafe::Sensors::begin();
   HomeSafe::Outputs::begin();
+  HomeSafe::Safety::begin();
 }
 
 void loop() {
   HomeSafe::Network::update();
   HomeSafe::Sensors::update();
+  HomeSafe::Safety::update();
 
-  testOutputs();
+  // testOutputs();
   // Keep the loop responsive for future sensor tasks.
   delay(1);
 }

@@ -21,6 +21,11 @@ struct EnvironmentData {
   bool flameDetected = false;
   bool flameValid = false;
 
+  bool flameHazardActive = false;
+  bool mq2HazardActive = false;
+  bool mq135HazardActive = false;
+  bool hazardActive = false;
+
   bool pirMotion = false;
   bool pirValid = false;
 };
