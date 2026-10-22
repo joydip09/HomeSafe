@@ -41,6 +41,11 @@ struct SecurityState {
   bool armed = false;
   bool scheduleEnabled = false;
   bool alarmActive = false;
+  uint8_t armHour = 22;
+  uint8_t armMinute = 0;
+
+  uint8_t disarmHour = 6;
+  uint8_t disarmMinute = 0;
 };
 
 enum class EventType : uint8_t { Hazard, Acoustic, Security, System };

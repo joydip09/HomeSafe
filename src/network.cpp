@@ -3,6 +3,7 @@
 #include "config.h"
 #include "protocol.h"
 #include "secret.h"
+#include "security.h"
 
 #include <ArduinoJson.h>
 #include <WebSocketsServer.h>
@@ -83,9 +84,77 @@ void handleMessage(uint8_t clientId, uint8_t *payload, size_t length) {
     data["ip_address"] = WiFi.localIP().toString();
     data["uptime_ms"] = millis();
     data["security_armed"] = state.security.armed;
+    data["schedule_enabled"] = state.security.scheduleEnabled;
     data["alarm_active"] = state.security.alarmActive;
 
     response["success"] = true;
+
+  } else if (strcmp(command, "set_security_mode") == 0) {
+    JsonVariantConst data = request["data"];
+
+    if (!data["armed"].is<bool>()) {
+      response["success"] = false;
+      response["error"] = "missing_or_invalid_armed";
+
+    } else {
+      const bool armed = data["armed"].as<bool>();
+
+      Security::setArmed(armed);
+
+      // Confirm the requested state was actually applied.
+      response["success"] = (Security::isArmed() == armed);
+
+      if (!response["success"].as<bool>()) {
+        response["error"] = "security_state_change_failed";
+      }
+    }
+
+  } else if (strcmp(command, "set_security_schedule") == 0) {
+    JsonVariantConst data = request["data"];
+
+    if (!data["enabled"].is<bool>()) {
+      response["success"] = false;
+      response["error"] = "missing_or_invalid_enabled";
+
+    } else {
+      const bool enabled = data["enabled"].as<bool>();
+      bool success = true;
+
+      if (enabled) {
+        const bool hasTimes = data["arm_hour"].is<uint8_t>() &&
+                              data["arm_minute"].is<uint8_t>() &&
+                              data["disarm_hour"].is<uint8_t>() &&
+                              data["disarm_minute"].is<uint8_t>();
+
+        if (!hasTimes) {
+          success = false;
+          response["error"] = "missing_or_invalid_schedule_times";
+
+        } else {
+          success = Security::setSchedule(data["arm_hour"].as<uint8_t>(),
+                                          data["arm_minute"].as<uint8_t>(),
+                                          data["disarm_hour"].as<uint8_t>(),
+                                          data["disarm_minute"].as<uint8_t>());
+
+          if (!success) {
+            response["error"] = "invalid_schedule";
+          }
+        }
+      }
+
+      if (success) {
+        Security::setScheduleEnabled(enabled);
+        response["success"] = true;
+      } else {
+        response["success"] = false;
+      }
+    }
+
+  } else if (strcmp(command, "silence_alarm") == 0) {
+    Security::silenceAlarm();
+
+    response["success"] = true;
+
   } else {
     response["success"] = false;
     response["error"] = "unknown_command";
@@ -154,6 +223,17 @@ void update() {
 
   const bool currentlyConnected = WiFi.status() == WL_CONNECTED;
 
+  static uint32_t lastDiagnostic = 0;
+
+  if (millis() - lastDiagnostic >= 5000) {
+    lastDiagnostic = millis();
+
+    Serial.printf("[WiFi Debug] Status: %d | IP: %s | Mode: %d\n",
+                  static_cast<int>(WiFi.status()),
+                  WiFi.localIP().toString().c_str(),
+                  static_cast<int>(WiFi.getMode()));
+  }
+
   if (currentlyConnected != wifiConnected) {
     wifiConnected = currentlyConnected;
 
@@ -163,6 +243,15 @@ void update() {
     } else {
       Serial.println("[Network] Wi-Fi disconnected.");
     }
+  }
+
+  static bool ipPrinted = false;
+
+  if (currentlyConnected && !ipPrinted) {
+    Serial.printf("[Network] ESP32 IP address: %s\n",
+                  WiFi.localIP().toString().c_str());
+
+    ipPrinted = true;
   }
 
   if (!currentlyConnected && millis() - lastReconnectAttempt >=
