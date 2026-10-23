@@ -169,18 +169,18 @@ void onWebSocketEvent(uint8_t clientId, WStype_t type, uint8_t *payload,
   case WStype_CONNECTED:
     clientConnected = true;
 
-    Serial.printf("[Network] WebSocket client %u connected\n", clientId);
+    // Serial.printf("[Network] WebSocket client %u connected\n", clientId);
     break;
 
   case WStype_DISCONNECTED:
     clientConnected = false;
 
-    Serial.printf("[Network] WebSocket client %u disconnected\n", clientId);
+    // Serial.printf("[Network] WebSocket client %u disconnected\n", clientId);
     break;
 
   case WStype_TEXT:
-    Serial.printf("[Network] Received message (%u bytes)\n",
-                  static_cast<unsigned>(length));
+    // Serial.printf("[Network] Received message (%u bytes)\n",
+    //               static_cast<unsigned>(length));
 
     handleMessage(clientId, payload, length);
     break;
@@ -191,7 +191,7 @@ void onWebSocketEvent(uint8_t clientId, WStype_t type, uint8_t *payload,
 }
 
 void connectWiFi() {
-  Serial.printf("[Network] Connecting to Wi-Fi: %s\n", Secrets::WIFI_SSID);
+  // Serial.printf("[Network] Connecting to Wi-Fi: %s\n", Secrets::WIFI_SSID);
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
@@ -204,7 +204,7 @@ void connectWiFi() {
 } // anonymous namespace
 
 void begin() {
-  Serial.println("[Network] Initializing...");
+  // Serial.println("[Network] Initializing...");
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
@@ -214,8 +214,8 @@ void begin() {
   webSocket.begin();
   webSocket.onEvent(onWebSocketEvent);
 
-  Serial.printf("[Network] WebSocket server initialized on port %u\n",
-                Protocol::DEFAULT_PORT);
+  // Serial.printf("[Network] WebSocket server initialized on port %u\n",
+  //               Protocol::DEFAULT_PORT);
 }
 
 void update() {
@@ -228,28 +228,28 @@ void update() {
   if (millis() - lastDiagnostic >= 5000) {
     lastDiagnostic = millis();
 
-    Serial.printf("[WiFi Debug] Status: %d | IP: %s | Mode: %d\n",
-                  static_cast<int>(WiFi.status()),
-                  WiFi.localIP().toString().c_str(),
-                  static_cast<int>(WiFi.getMode()));
+    // Serial.printf("[WiFi Debug] Status: %d | IP: %s | Mode: %d\n",
+    //               static_cast<int>(WiFi.status()),
+    //               WiFi.localIP().toString().c_str(),
+    //               static_cast<int>(WiFi.getMode()));
   }
 
   if (currentlyConnected != wifiConnected) {
     wifiConnected = currentlyConnected;
 
     if (wifiConnected) {
-      Serial.printf("[Network] Wi-Fi connected. IP: %s\n",
-                    WiFi.localIP().toString().c_str());
+      // Serial.printf("[Network] Wi-Fi connected. IP: %s\n",
+      //               WiFi.localIP().toString().c_str());
     } else {
-      Serial.println("[Network] Wi-Fi disconnected.");
+      // Serial.println("[Network] Wi-Fi disconnected.");
     }
   }
 
   static bool ipPrinted = false;
 
   if (currentlyConnected && !ipPrinted) {
-    Serial.printf("[Network] ESP32 IP address: %s\n",
-                  WiFi.localIP().toString().c_str());
+    // Serial.printf("[Network] ESP32 IP address: %s\n",
+    //               WiFi.localIP().toString().c_str());
 
     ipPrinted = true;
   }
@@ -257,7 +257,7 @@ void update() {
   if (!currentlyConnected && millis() - lastReconnectAttempt >=
                                  Config::Network::WIFI_RECONNECT_INTERVAL_MS) {
 
-    Serial.println("[Network] Retrying Wi-Fi connection...");
+    // Serial.println("[Network] Retrying Wi-Fi connection...");
 
     WiFi.begin(Secrets::WIFI_SSID, Secrets::WIFI_PASSWORD);
 

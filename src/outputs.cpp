@@ -43,7 +43,7 @@ void refreshAlarmOutputs() {
 } // namespace
 
 void begin() {
-  Serial.println("[Outputs] Initializing outputs...");
+  // Serial.println("[Outputs] Initializing outputs...");
 
   // Configure RGB LED pins.
   pinMode(Config::Pins::LED_RED, OUTPUT);
@@ -68,7 +68,7 @@ void begin() {
 
   refreshAlarmOutputs();
 
-  Serial.println("[Outputs] RGB LED and buzzer initialized");
+  // Serial.println("[Outputs] RGB LED and buzzer initialized");
 }
 
 void setRGB(uint8_t red, uint8_t green, uint8_t blue) {
