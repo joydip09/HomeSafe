@@ -77,8 +77,9 @@ void updateOverallHazard() {
     if (hazardActive) {
       hazardActive = false;
 
-      Outputs::buzzerOff();
-      Outputs::turnLEDOff();
+      // Release only the environmental alarm request.
+      // A security alarm may still keep the outputs active.
+      Outputs::setEnvironmentalAlarm(false);
 
       lastAlarmClearedAt = now;
       alarmCooldownActive = true;
@@ -101,7 +102,7 @@ void updateOverallHazard() {
     if (alarmCooldownActive &&
         now - lastAlarmClearedAt < Config::Safety::ALARM_COOLDOWN_MS) {
       // Keep hazard state separate from alarm output state.
-      // Do NOT mark hazardActive true here.
+      // Do not activate the environmental alarm during cooldown.
       return;
     }
 
@@ -109,8 +110,8 @@ void updateOverallHazard() {
     hazardActive = true;
     alarmCooldownActive = false;
 
-    Outputs::setRGB(255, 0, 0);
-    Outputs::buzzerOn();
+    // Request the environmental alarm through the central controller.
+    Outputs::setEnvironmentalAlarm(true);
 
     Serial.println("[Safety] Environmental hazard alarm activated");
   }
@@ -148,7 +149,7 @@ void update() {
   }
 
   const uint32_t now = millis();
-  EnvironmentData& environment = getState().environment;
+  EnvironmentData &environment = getState().environment;
 
   // Flame sensor: digital detection is active LOW,
   // interpreted by the existing sensor driver.

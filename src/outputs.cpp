@@ -12,11 +12,32 @@ namespace {
 bool initialized = false;
 bool buzzerActive = false;
 
+// Independent alarm requests from each subsystem.
+bool environmentalAlarmActive = false;
+bool securityAlarmActive = false;
+
 // Invert brightness because the RGB LED is common-anode.
 // 0 brightness   -> GPIO HIGH (off)
 // 255 brightness -> GPIO LOW  (full brightness)
 void writeLED(uint8_t pin, uint8_t brightness) {
   analogWrite(pin, 255 - brightness);
+}
+
+// Combine alarm states and control the physical outputs.
+void refreshAlarmOutputs() {
+  if (!initialized) {
+    return;
+  }
+
+  const bool anyAlarmActive = environmentalAlarmActive || securityAlarmActive;
+
+  if (anyAlarmActive) {
+    setRGB(255, 0, 0);
+    buzzerOn();
+  } else {
+    buzzerOff();
+    turnLEDOff();
+  }
 }
 
 } // namespace
@@ -38,8 +59,14 @@ void begin() {
   pinMode(Config::Pins::BUZZER, OUTPUT);
   digitalWrite(Config::Pins::BUZZER, LOW);
 
+  // Reset the output controller's state.
   buzzerActive = false;
+  environmentalAlarmActive = false;
+  securityAlarmActive = false;
+
   initialized = true;
+
+  refreshAlarmOutputs();
 
   Serial.println("[Outputs] RGB LED and buzzer initialized");
 }
@@ -75,6 +102,24 @@ void buzzerOff() {
 }
 
 bool isBuzzerActive() { return buzzerActive; }
+
+void setEnvironmentalAlarm(bool active) {
+  if (environmentalAlarmActive == active) {
+    return;
+  }
+
+  environmentalAlarmActive = active;
+  refreshAlarmOutputs();
+}
+
+void setSecurityAlarm(bool active) {
+  if (securityAlarmActive == active) {
+    return;
+  }
+
+  securityAlarmActive = active;
+  refreshAlarmOutputs();
+}
 
 } // namespace Outputs
 } // namespace HomeSafe

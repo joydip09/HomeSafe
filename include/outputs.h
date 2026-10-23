@@ -25,6 +25,12 @@ void buzzerOff();
 // Check whether the buzzer is currently active.
 bool isBuzzerActive();
 
+// Report whether an environmental alarm should be active.
+void setEnvironmentalAlarm(bool active);
+
+// Report whether a security alarm should be active.
+void setSecurityAlarm(bool active);
+
 } // namespace Outputs
 } // namespace HomeSafe
 

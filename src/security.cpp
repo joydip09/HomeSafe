@@ -78,8 +78,7 @@ void updateMotionDetection() {
 
     Serial.println("[Security] INTRUSION DETECTED");
 
-    Outputs::setRGB(255, 0, 0);
-    Outputs::buzzerOn();
+    Outputs::setSecurityAlarm(true);
   }
 }
 
@@ -266,8 +265,9 @@ void setArmed(bool armed) {
     securityAlarmActive = false;
     state.alarmActive = false;
 
-    Outputs::buzzerOff();
-    Outputs::turnLEDOff();
+    // Clear only the security alarm request.
+    // An environmental alarm may still be active.
+    Outputs::setSecurityAlarm(false);
 
     Serial.println("[Security] System disarmed");
   } else {
@@ -301,8 +301,8 @@ void silenceAlarm() {
   securityAlarmActive = false;
   getState().security.alarmActive = false;
 
-  Outputs::buzzerOff();
-  Outputs::turnLEDOff();
+  // Silence the security alarm without affecting environmental alarms.
+  Outputs::setSecurityAlarm(false);
 
   Serial.println("[Security] Alarm silenced");
 }
