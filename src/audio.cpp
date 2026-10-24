@@ -1,10 +1,13 @@
 #include "audio.h"
+#include "app_state.h"
 #include "config.h"
+#include "network.h"
 #include <HomeSafe_inferencing.h>
 
 #include <Arduino.h>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <driver/i2s.h>
 
 namespace HomeSafe {
@@ -29,6 +32,10 @@ int16_t inferenceBuffer[SLICE_SAMPLES];
 size_t inferenceSampleCount = 0;
 
 bool initialized = false;
+bool acousticEventLatched = false;
+bool hasEmittedAcousticEvent = false;
+String latchedEventClass;
+uint32_t lastAcousticEventMs = 0;
 
 int getAudioData(size_t offset, size_t length, float *outPtr) {
   if (offset + length > SLICE_SAMPLES) {
@@ -87,10 +94,57 @@ void runInference() {
   ei_impulse_result_t result = {};
 
   EI_IMPULSE_ERROR err = run_classifier_continuous(&signal, &result, false);
+  const uint32_t inferenceTimestamp = millis();
 
   if (err != EI_IMPULSE_OK) {
+    AudioData &audio = getState().audio;
+    audio.detectedClass = "";
+    audio.confidence = 0.0f;
+    audio.inferenceValid = false;
+    audio.lastInference = inferenceTimestamp;
+    acousticEventLatched = false;
+    latchedEventClass = "";
     Serial.printf("[Audio] Classifier error: %d\n", static_cast<int>(err));
     return;
+  }
+
+  size_t bestIndex = 0;
+  for (size_t i = 1; i < EI_CLASSIFIER_LABEL_COUNT; ++i) {
+    if (result.classification[i].value >
+        result.classification[bestIndex].value) {
+      bestIndex = i;
+    }
+  }
+
+  const char *detectedClass = result.classification[bestIndex].label;
+  const float confidence = result.classification[bestIndex].value;
+  AudioData &audio = getState().audio;
+  audio.detectedClass = detectedClass;
+  audio.confidence = confidence;
+  audio.inferenceValid = true;
+  audio.lastInference = inferenceTimestamp;
+
+  const bool isNormal = strcmp(detectedClass, "normal") == 0;
+  const bool isEligible =
+      !isNormal && confidence >= Config::Audio::CLASSIFICATION_CONFIDENCE_THRESHOLD;
+
+  if (!isEligible) {
+    acousticEventLatched = false;
+    latchedEventClass = "";
+  } else if (!acousticEventLatched ||
+             latchedEventClass != detectedClass) {
+    const bool cooldownElapsed =
+        !hasEmittedAcousticEvent ||
+        inferenceTimestamp - lastAcousticEventMs >=
+        Config::Audio::EVENT_COOLDOWN_MS;
+
+    if (cooldownElapsed &&
+        Network::queueAcousticEvent(detectedClass, confidence)) {
+      acousticEventLatched = true;
+      hasEmittedAcousticEvent = true;
+      latchedEventClass = detectedClass;
+      lastAcousticEventMs = inferenceTimestamp;
+    }
   }
 
   Serial.println("\n[Audio] Classification:");
@@ -116,6 +170,10 @@ bool begin() {
   }
 
   inferenceSampleCount = 0;
+  acousticEventLatched = false;
+  hasEmittedAcousticEvent = false;
+  latchedEventClass = "";
+  lastAcousticEventMs = 0;
   run_classifier_init();
   initialized = true;
 

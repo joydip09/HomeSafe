@@ -1,6 +1,8 @@
 #ifndef HOMESAFE_MODELS_H
 #define HOMESAFE_MODELS_H
 
+#include "protocol.h"
+
 #include <Arduino.h>
 
 namespace HomeSafe {
@@ -28,6 +30,7 @@ struct EnvironmentData {
 
   bool pirMotion = false;
   bool pirValid = false;
+  uint32_t pirLastUpdated = 0;
 };
 
 struct AudioData {
@@ -48,23 +51,32 @@ struct SecurityState {
   uint8_t disarmMinute = 0;
 };
 
-enum class EventType : uint8_t { Hazard, Acoustic, Security, System };
-
 struct HomeSafeEvent {
-  uint32_t id = 0;
-  EventType type = EventType::System;
+  Protocol::EventId eventId = 0;
+  Protocol::SequenceNumber sequence = 0;
+  Protocol::EventType type = Protocol::EventType::Security;
   String name;
   String details;
-  uint32_t timestamp = 0;
+  uint32_t timestampMs = 0;
   bool active = true;
 };
 
 struct DeviceStatus {
   bool wifiConnected = false;
-  bool websocketClientConnected = false;
-  bool audioAvailable = false;
-  bool sensorsInitialized = false;
+  String ipAddress;
   uint32_t uptimeMs = 0;
+  bool sensorsInitialized = false;
+  bool audioAvailable = false;
+  String firmwareVersion = Protocol::FIRMWARE_VERSION;
+  uint8_t protocolVersion = Protocol::VERSION;
+  uint32_t websocketClientCount = 0;
+  bool timeValid = false;
+};
+
+struct AlarmState {
+  bool environmentalActive = false;
+  bool securityActive = false;
+  bool anyActive = false;
 };
 
 struct HomeSafeState {
@@ -72,6 +84,7 @@ struct HomeSafeState {
   AudioData audio;
   SecurityState security;
   DeviceStatus device;
+  AlarmState alarms;
 };
 
 } // namespace HomeSafe

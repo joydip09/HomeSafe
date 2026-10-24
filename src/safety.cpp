@@ -2,6 +2,7 @@
 
 #include "app_state.h"
 #include "config.h"
+#include "network.h"
 #include "outputs.h"
 
 namespace HomeSafe {
@@ -80,6 +81,8 @@ void updateOverallHazard() {
       // Release only the environmental alarm request.
       // A security alarm may still keep the outputs active.
       Outputs::setEnvironmentalAlarm(false);
+      Network::queueAlarmEvent("environmental", "cleared", false,
+                               getState().security.alarmActive);
 
       lastAlarmClearedAt = now;
       alarmCooldownActive = true;
@@ -112,6 +115,8 @@ void updateOverallHazard() {
 
     // Request the environmental alarm through the central controller.
     Outputs::setEnvironmentalAlarm(true);
+    Network::queueAlarmEvent("environmental", "activated", true,
+                             getState().security.alarmActive);
 
     // Serial.println("[Safety] Environmental hazard alarm activated");
   }
@@ -150,6 +155,9 @@ void update() {
 
   const uint32_t now = millis();
   EnvironmentData &environment = getState().environment;
+  const bool previousFlameHazard = flameHazardActive;
+  const bool previousMq2Hazard = mq2HazardActive;
+  const bool previousMq135Hazard = mq135HazardActive;
 
   // Flame sensor: digital detection is active LOW,
   // interpreted by the existing sensor driver.
@@ -174,6 +182,19 @@ void update() {
   environment.mq135HazardActive = mq135HazardActive;
   environment.hazardActive =
       flameHazardActive || mq2HazardActive || mq135HazardActive;
+
+  if (previousFlameHazard != flameHazardActive) {
+    Network::queueHazardEvent("flame", flameHazardActive,
+                              environment.hazardActive);
+  }
+  if (previousMq2Hazard != mq2HazardActive) {
+    Network::queueHazardEvent("mq2", mq2HazardActive,
+                              environment.hazardActive);
+  }
+  if (previousMq135Hazard != mq135HazardActive) {
+    Network::queueHazardEvent("mq135", mq135HazardActive,
+                              environment.hazardActive);
+  }
 
   updateOverallHazard();
 }

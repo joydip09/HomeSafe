@@ -2,6 +2,7 @@
 
 #include "app_state.h"
 #include "config.h"
+#include "network.h"
 #include "outputs.h"
 #include <Preferences.h>
 #include <time.h>
@@ -79,6 +80,10 @@ void updateMotionDetection() {
     // Serial.println("[Security] INTRUSION DETECTED");
 
     Outputs::setSecurityAlarm(true);
+    Network::queueSecurityEvent("intrusion_detected", securityArmed,
+                                scheduleEnabled, true);
+    Network::queueAlarmEvent("security", "activated",
+                             getState().environment.hazardActive, true);
   }
 }
 
@@ -176,6 +181,10 @@ bool setSchedule(uint8_t newArmHour, uint8_t newArmMinute,
     return false;
   }
 
+  const bool changed = armHour != newArmHour || armMinute != newArmMinute ||
+                       disarmHour != newDisarmHour ||
+                       disarmMinute != newDisarmMinute;
+
   armHour = newArmHour;
   armMinute = newArmMinute;
   disarmHour = newDisarmHour;
@@ -192,6 +201,11 @@ bool setSchedule(uint8_t newArmHour, uint8_t newArmMinute,
   state.armMinute = armMinute;
   state.disarmHour = disarmHour;
   state.disarmMinute = disarmMinute;
+
+  if (changed) {
+    Network::queueSecurityEvent("schedule_changed", securityArmed,
+                                scheduleEnabled, securityAlarmActive);
+  }
 
   // Serial.println("[Security] Schedule saved");
   return true;
@@ -251,6 +265,8 @@ void setArmed(bool armed) {
     return;
   }
 
+  const bool previousArmed = securityArmed;
+  const bool previousAlarmActive = securityAlarmActive;
   securityArmed = armed;
   preferences.putBool(KEY_ARMED, securityArmed);
 
@@ -273,19 +289,39 @@ void setArmed(bool armed) {
   } else {
     // Serial.println("[Security] System armed");
   }
+
+  if (previousArmed != securityArmed) {
+    Network::queueSecurityEvent(securityArmed ? "armed" : "disarmed",
+                                securityArmed, scheduleEnabled,
+                                securityAlarmActive);
+  }
+  if (previousAlarmActive && !securityAlarmActive) {
+    Network::queueAlarmEvent("security", "cleared",
+                             getState().environment.hazardActive, false);
+  }
 }
 
 bool isArmed() { return securityArmed; }
+
+bool isInitialized() { return initialized; }
 
 void setScheduleEnabled(bool enabled) {
   if (!initialized) {
     return;
   }
 
+  const bool previousEnabled = scheduleEnabled;
   scheduleEnabled = enabled;
   preferences.putBool(KEY_SCHEDULE, scheduleEnabled);
 
   getState().security.scheduleEnabled = scheduleEnabled;
+
+  if (previousEnabled != scheduleEnabled) {
+    Network::queueSecurityEvent(scheduleEnabled ? "schedule_enabled"
+                                                : "schedule_disabled",
+                                securityArmed, scheduleEnabled,
+                                securityAlarmActive);
+  }
 
   // Serial.printf("[Security] Schedule %s\n",
   //               scheduleEnabled ? "enabled" : "disabled");
@@ -303,6 +339,8 @@ void silenceAlarm() {
 
   // Silence the security alarm without affecting environmental alarms.
   Outputs::setSecurityAlarm(false);
+  Network::queueAlarmEvent("security", "silenced",
+                           getState().environment.hazardActive, false);
 
   // Serial.println("[Security] Alarm silenced");
 }

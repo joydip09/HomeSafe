@@ -19,6 +19,9 @@ void setArmed(bool armed);
 // Return whether security is currently armed.
 bool isArmed();
 
+// Return whether the security module is initialized.
+bool isInitialized();
+
 // Enable or disable scheduled arming.
 void setScheduleEnabled(bool enabled);
 

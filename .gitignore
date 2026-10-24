@@ -5,4 +5,5 @@
 .vscode/ipch
 
 include/secret.h
-scripts/
+scripts/*
+!scripts/test_protocol.py
