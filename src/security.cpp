@@ -77,7 +77,7 @@ void updateMotionDetection() {
 
     getState().security.alarmActive = true;
 
-    // Serial.println("[Security] INTRUSION DETECTED");
+    Serial.println("[Security] INTRUSION DETECTED");
 
     Outputs::setSecurityAlarm(true);
     Network::queueSecurityEvent("intrusion_detected", securityArmed,

@@ -2,7 +2,7 @@
 #include "app_state.h"
 #include "config.h"
 #include "network.h"
-#include <HomeSafe_inferencing.h>
+#include <HomeSafe_v2_inferencing.h>
 
 #include <Arduino.h>
 #include <cmath>
@@ -126,17 +126,16 @@ void runInference() {
 
   const bool isNormal = strcmp(detectedClass, "normal") == 0;
   const bool isEligible =
-      !isNormal && confidence >= Config::Audio::CLASSIFICATION_CONFIDENCE_THRESHOLD;
+      !isNormal &&
+      confidence >= Config::Audio::CLASSIFICATION_CONFIDENCE_THRESHOLD;
 
   if (!isEligible) {
     acousticEventLatched = false;
     latchedEventClass = "";
-  } else if (!acousticEventLatched ||
-             latchedEventClass != detectedClass) {
+  } else if (!acousticEventLatched || latchedEventClass != detectedClass) {
     const bool cooldownElapsed =
-        !hasEmittedAcousticEvent ||
-        inferenceTimestamp - lastAcousticEventMs >=
-        Config::Audio::EVENT_COOLDOWN_MS;
+        !hasEmittedAcousticEvent || inferenceTimestamp - lastAcousticEventMs >=
+                                        Config::Audio::EVENT_COOLDOWN_MS;
 
     if (cooldownElapsed &&
         Network::queueAcousticEvent(detectedClass, confidence)) {
