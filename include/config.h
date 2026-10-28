@@ -50,8 +50,8 @@ constexpr uint32_t ALARM_COOLDOWN_MS = 5000;
 
 // Temporary raw ADC thresholds.
 // Calibrate these using actual sensor readings before deployment.
-constexpr int MQ2_ADC_THRESHOLD = 2000;
-constexpr int MQ135_ADC_THRESHOLD = 2000;
+constexpr int MQ2_ADC_THRESHOLD = 1000;
+constexpr int MQ135_ADC_THRESHOLD = 1000;
 } // namespace Safety
 
 namespace Audio {
