@@ -63,7 +63,7 @@ void updateConfirmedHazard(bool sensorValid, bool conditionDetected,
       now - detectedSince >= Config::Safety::HAZARD_CONFIRMATION_MS) {
     confirmedHazard = true;
 
-    // Serial.printf("[Safety] CONFIRMED %s HAZARD\n", hazardName);
+    Serial.printf("[Safety] CONFIRMED %s HAZARD\n", hazardName);
   }
 }
 
@@ -87,14 +87,14 @@ void updateOverallHazard() {
       lastAlarmClearedAt = now;
       alarmCooldownActive = true;
 
-      // Serial.println("[Safety] All environmental hazards cleared");
+      Serial.println("[Safety] All environmental hazards cleared");
     }
 
     // Expire the cooldown without blocking.
     if (alarmCooldownActive &&
         now - lastAlarmClearedAt >= Config::Safety::ALARM_COOLDOWN_MS) {
       alarmCooldownActive = false;
-      // Serial.println("[Safety] Alarm cooldown expired");
+      Serial.println("[Safety] Alarm cooldown expired");
     }
 
     return;
@@ -118,14 +118,14 @@ void updateOverallHazard() {
     Network::queueAlarmEvent("environmental", "activated", true,
                              getState().security.alarmActive);
 
-    // Serial.println("[Safety] Environmental hazard alarm activated");
+    Serial.println("[Safety] Environmental hazard alarm activated");
   }
 }
 
 } // namespace
 
 void begin() {
-  // Serial.println("[Safety] Initializing safety logic...");
+  Serial.println("[Safety] Initializing safety logic...");
 
   flameHazardActive = false;
   mq2HazardActive = false;
@@ -145,7 +145,7 @@ void begin() {
 
   initialized = true;
 
-  // Serial.println("[Safety] Safety logic initialized");
+  Serial.println("[Safety] Safety logic initialized");
 }
 
 void update() {

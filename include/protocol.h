@@ -57,6 +57,7 @@ constexpr const char *MISSING_OR_INVALID_SCHEDULE_TIMES =
     "missing_or_invalid_schedule_times";
 constexpr const char *INVALID_SCHEDULE = "invalid_schedule";
 constexpr const char *SECURITY_NOT_INITIALIZED = "security_not_initialized";
+constexpr const char *MANUAL_SECURITY_ACTIVE = "manual_security_active";
 constexpr const char *COMMAND_NOT_APPLIED = "command_not_applied";
 constexpr const char *SERIALIZATION_FAILED = "serialization_failed";
 } // namespace ErrorCode

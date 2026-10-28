@@ -110,7 +110,7 @@ void loadSchedule() {
     disarmHour = 6;
     disarmMinute = 0;
 
-    // Serial.println("[Security] Invalid stored schedule; using defaults");
+    Serial.println("[Security] Invalid stored schedule; using defaults");
   }
 
   SecurityState &state = getState().security;
@@ -132,7 +132,7 @@ void updateSchedule() {
   // This check requires a plausible date, not just a nonzero clock.
   if (now < 1760000000) {
     if (scheduleTimeValid) {
-      // Serial.println("[Security] Clock became invalid");
+      Serial.println("[Security] Clock became invalid");
     }
 
     scheduleTimeValid = false;
@@ -165,8 +165,8 @@ void updateSchedule() {
   }
 
   if (securityArmed != shouldBeArmed) {
-    // Serial.printf("[Security] Schedule changing mode to %s\n",
-    //               shouldBeArmed ? "ARMED" : "DISARMED");
+    Serial.printf("[Security] Schedule changing mode to %s\n",
+                  shouldBeArmed ? "ARMED" : "DISARMED");
 
     setArmed(shouldBeArmed);
   }
@@ -207,7 +207,7 @@ bool setSchedule(uint8_t newArmHour, uint8_t newArmMinute,
                                 scheduleEnabled, securityAlarmActive);
   }
 
-  // Serial.println("[Security] Schedule saved");
+  Serial.println("[Security] Schedule saved");
   return true;
 }
 
@@ -216,10 +216,10 @@ bool isScheduleValid() {
 }
 
 void begin() {
-  // Serial.println("[Security] Initializing security module...");
+  Serial.println("[Security] Initializing security module...");
 
   if (!preferences.begin(NAMESPACE, false)) {
-    // Serial.println("[Security] WARNING: Preferences initialization failed");
+    Serial.println("[Security] WARNING: Preferences initialization failed");
     securityArmed = false;
     scheduleEnabled = false;
   } else {
@@ -247,8 +247,8 @@ void begin() {
 
   initialized = true;
 
-  // Serial.printf("[Security] Initialized. Armed: %s | Schedule: %s\n",
-  //               securityArmed ? "YES" : "NO", scheduleEnabled ? "YES" : "NO");
+  Serial.printf("[Security] Initialized. Armed: %s | Schedule: %s\n",
+                securityArmed ? "YES" : "NO", scheduleEnabled ? "YES" : "NO");
 }
 
 void update() {
@@ -285,9 +285,9 @@ void setArmed(bool armed) {
     // An environmental alarm may still be active.
     Outputs::setSecurityAlarm(false);
 
-    // Serial.println("[Security] System disarmed");
+    Serial.println("[Security] System disarmed");
   } else {
-    // Serial.println("[Security] System armed");
+    Serial.println("[Security] System armed");
   }
 
   if (previousArmed != securityArmed) {
@@ -323,8 +323,8 @@ void setScheduleEnabled(bool enabled) {
                                 securityAlarmActive);
   }
 
-  // Serial.printf("[Security] Schedule %s\n",
-  //               scheduleEnabled ? "enabled" : "disabled");
+  Serial.printf("[Security] Schedule %s\n",
+                scheduleEnabled ? "enabled" : "disabled");
 }
 
 bool isScheduleEnabled() { return scheduleEnabled; }
@@ -342,7 +342,7 @@ void silenceAlarm() {
   Network::queueAlarmEvent("security", "silenced",
                            getState().environment.hazardActive, false);
 
-  // Serial.println("[Security] Alarm silenced");
+  Serial.println("[Security] Alarm silenced");
 }
 
 } // namespace Security

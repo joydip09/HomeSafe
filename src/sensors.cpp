@@ -37,7 +37,7 @@ void updateDHT11() {
     state.environment.temperatureC.valid = false;
     state.environment.humidityRH.valid = false;
 
-    // Serial.println("[Sensors] DHT11 read failed");
+    Serial.println("[Sensors] DHT11 read failed");
     return;
   }
 
@@ -49,8 +49,8 @@ void updateDHT11() {
   state.environment.humidityRH.valid = true;
   state.environment.humidityRH.lastUpdated = now;
 
-  // Serial.printf("[Sensors] Temperature: %.1f C | Humidity: %.1f %%\n",
-  //               temperature, humidity);
+  Serial.printf("[Sensors] Temperature: %.1f C | Humidity: %.1f %%\n",
+                temperature, humidity);
 }
 
 void updateMQSensors() {
@@ -75,7 +75,7 @@ void updateMQSensors() {
   state.environment.mq135ADC.valid = true;
   state.environment.mq135ADC.lastUpdated = now;
 
-  // Serial.printf("[Sensors] MQ-2: %d | MQ-135: %d\n", mq2Reading, mq135Reading);
+  Serial.printf("[Sensors] MQ-2: %d | MQ-135: %d\n", mq2Reading, mq135Reading);
 }
 
 void updateFlameSensor() {
@@ -103,9 +103,9 @@ void updateFlameSensor() {
   state.environment.flameDetected = (digitalValue == LOW);
   state.environment.flameValid = true;
 
-  // Serial.printf("[Sensors] Flame AO: %d | DO: %s | Detected: %s\n", analogValue,
-  //               digitalValue == HIGH ? "HIGH" : "LOW",
-  //               state.environment.flameDetected ? "YES" : "NO");
+  Serial.printf("[Sensors] Flame AO: %d | DO: %s | Detected: %s\n", analogValue,
+                digitalValue == HIGH ? "HIGH" : "LOW",
+                state.environment.flameDetected ? "YES" : "NO");
 }
 
 void updatePIR() {
@@ -124,15 +124,15 @@ void updatePIR() {
   HomeSafeState &state = getState();
 
   state.environment.pirMotion = motionDetected;
-  // Serial.printf("[Sensors] PIR motion: %s\n",
-  //               motionDetected ? "YES" : "NO"); // for testing
+  Serial.printf("[Sensors] PIR motion: %s\n",
+                motionDetected ? "YES" : "NO"); // for testing
   state.environment.pirValid = true;
 }
 
 } // namespace
 
 void begin() {
-  // Serial.println("[Sensors] Initializing sensors...");
+  Serial.println("[Sensors] Initializing sensors...");
 
   // Match the 12-bit ADC resolution used in your earlier tests.
   analogReadResolution(12);
@@ -151,8 +151,8 @@ void begin() {
 
   initialized = true;
 
-  // Serial.println("[Sensors] DHT11 initialized");
-  // Serial.println("[Sensors] MQ-2 and MQ-135 ADC acquisition initialized");
+  Serial.println("[Sensors] DHT11 initialized");
+  Serial.println("[Sensors] MQ-2 and MQ-135 ADC acquisition initialized");
 }
 
 void update() {
