@@ -834,10 +834,10 @@ void update() {
   if (millis() - lastDiagnostic >= 5000) {
     lastDiagnostic = millis();
 
-    Serial.printf("[WiFi Debug] Status: %d | IP: %s | Mode: %d\n",
-                  static_cast<int>(WiFi.status()),
-                  WiFi.localIP().toString().c_str(),
-                  static_cast<int>(WiFi.getMode()));
+    // Serial.printf("[WiFi Debug] Status: %d | IP: %s | Mode: %d\n",
+    //               static_cast<int>(WiFi.status()),
+    //               WiFi.localIP().toString().c_str(),
+    //               static_cast<int>(WiFi.getMode()));
   }
 
   if (currentlyConnected != wifiConnected) {

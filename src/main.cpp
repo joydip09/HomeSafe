@@ -12,11 +12,11 @@ void setup() {
 
   delay(1000);
 
-  Serial.println();
-  Serial.println("================================");
-  Serial.println("       HomeSafe Firmware");
-  Serial.println("       Network Test v1");
-  Serial.println("================================");
+  // Serial.println();
+  // Serial.println("================================");
+  // Serial.println("       HomeSafe Firmware");
+  // Serial.println("       Network Test v1");
+  // Serial.println("================================");
 
   HomeSafe::Network::begin();
   HomeSafe::Sensors::begin();
