@@ -474,5 +474,10 @@ Useful diagnostics:
 
 ## License
 
-No project license is currently declared in this repository. Add a license
-before distributing the firmware or bundled model outside the project.
+HomeSafe is released under the [MIT License](./LICENSE). See
+[CHANGELOG.md](./CHANGELOG.md) for release history and planned work.
+
+The bundled Edge Impulse inference library may contain separately licensed
+generated components. Review the notices in
+[`lib/HomeSafe_v2_inferencing/`](./lib/HomeSafe_v2_inferencing/) before
+redistributing that model or its generated SDK.
