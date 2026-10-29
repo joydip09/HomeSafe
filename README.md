@@ -218,11 +218,11 @@ initialization. The device IP address is the value needed by the app.
 | Audio event threshold | Non-`normal` class at confidence `>= 0.80` |
 | Audio event cooldown | 3 seconds |
 
-The default MQ-2 and MQ-135 thresholds are raw ADC values of `1000`. These are
-placeholders, not universal gas-concentration limits. Record clean-air and
-controlled-test readings for the actual modules, supply voltage, enclosure, and
-environment, then adjust `MQ2_ADC_THRESHOLD` and `MQ135_ADC_THRESHOLD` in
-[`include/config.h`](./include/config.h).
+The default MQ-2 threshold is raw ADC `900`, and the default MQ-135 threshold is
+raw ADC `400`. These are placeholders, not universal gas-concentration limits.
+Record clean-air and controlled-test readings for the actual modules, supply
+voltage, enclosure, and environment, then adjust `MQ2_ADC_THRESHOLD` and
+`MQ135_ADC_THRESHOLD` in [`include/config.h`](./include/config.h).
 
 An environmental alarm is activated only after a continuous confirmed hazard.
 When all environmental hazards clear, the environmental request is released,
