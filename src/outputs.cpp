@@ -32,11 +32,11 @@ void refreshAlarmOutputs() {
   const bool anyAlarmActive = environmentalAlarmActive || securityAlarmActive;
 
   if (anyAlarmActive) {
-    setRGB(255, 0, 0);
+    setRGB(255, 0, 0); // RYG Red
     buzzerOn();
   } else {
     buzzerOff();
-    turnLEDOff();
+    setRGB(0, 100, 255); // RYG Amber Green
   }
 }
 
