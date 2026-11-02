@@ -9,6 +9,8 @@ The firmware makes the safety decisions locally. The Android app is a
 dashboard and control surface that connects directly to the ESP32 over
 WebSockets; there is no required cloud service, account, or remote database.
 
+![Complete HomeSafe device](./docs/images/full_device.jpg)
+
 > **Safety notice:** HomeSafe is an electronics and software project, not a
 > certified fire, gas, intrusion, or life-safety system. Sensor modules need
 > calibration, the installation needs electrical and environmental testing, and
@@ -58,40 +60,42 @@ received while connected, and sends only firmware-supported commands.
 
 ### Main components
 
-| Component | Purpose |
-|---|---|
-| ESP32-S3 DevKitC-1 | Main controller, Wi-Fi, ADC, I2S, and firmware runtime |
-| DHT11 | Temperature and humidity |
-| MQ-2 module | Smoke/flammable-gas indication |
-| MQ-135 module | Air-quality/gas indication |
-| Flame sensor module | Analog flame level and digital detection |
-| PIR sensor | Motion detection while security is armed |
-| INMP441 | I2S microphone for audio classification |
-| Common-anode RGB LED | Alarm/status indication |
-| Active buzzer | Audible alarm |
-| Breadboard, regulated supply, resistors, and jumper wires | Assembly and power distribution |
+| Component                                                 | Purpose                                                |
+| --------------------------------------------------------- | ------------------------------------------------------ |
+| ESP32-S3 DevKitC-1                                        | Main controller, Wi-Fi, ADC, I2S, and firmware runtime |
+| DHT11                                                     | Temperature and humidity                               |
+| MQ-2 module                                               | Smoke/flammable-gas indication                         |
+| MQ-135 module                                             | Air-quality/gas indication                             |
+| Flame sensor module                                       | Analog flame level and digital detection               |
+| PIR sensor                                                | Motion detection while security is armed               |
+| INMP441                                                   | I2S microphone for audio classification                |
+| Common-anode RGB LED                                      | Alarm/status indication                                |
+| Active buzzer                                             | Audible alarm                                          |
+| Breadboard, regulated supply, resistors, and jumper wires | Assembly and power distribution                        |
 
 ### Pin map
 
 The pin assignments are defined in [`include/config.h`](./include/config.h).
 
-| Signal | ESP32-S3 GPIO | Direction / notes |
-|---|---:|---|
-| INMP441 SCK/BCLK | 4 | I2S clock |
-| INMP441 WS/LRCL | 5 | I2S word-select |
-| INMP441 SD/DOUT | 6 | I2S microphone data |
-| DHT11 DATA | 45 | Digital data; use the module’s required pull-up |
-| MQ-2 AO | 9 | Analog input |
-| MQ-135 AO | 8 | Analog input |
-| Flame AO | 1 | Analog input |
-| Flame DO | 2 | Digital input; firmware treats LOW as detected |
-| PIR OUT | 15 | Digital input; HIGH means motion |
-| RGB red | 40 | PWM output; common-anode, active-low |
-| RGB green | 39 | PWM output; common-anode, active-low |
-| RGB blue | 38 | PWM output; common-anode, active-low |
-| Buzzer | 21 | Digital output; HIGH activates the buzzer |
+| Signal           | ESP32-S3 GPIO | Direction / notes                               |
+| ---------------- | ------------: | ----------------------------------------------- |
+| INMP441 SCK/BCLK |             4 | I2S clock                                       |
+| INMP441 WS/LRCL  |             5 | I2S word-select                                 |
+| INMP441 SD/DOUT  |             6 | I2S microphone data                             |
+| DHT11 DATA       |            45 | Digital data; use the module’s required pull-up |
+| MQ-2 AO          |             9 | Analog input                                    |
+| MQ-135 AO        |             8 | Analog input                                    |
+| Flame AO         |             1 | Analog input                                    |
+| Flame DO         |             2 | Digital input; firmware treats LOW as detected  |
+| PIR OUT          |            15 | Digital input; HIGH means motion                |
+| RGB red          |            40 | PWM output; common-anode, active-low            |
+| RGB green        |            39 | PWM output; common-anode, active-low            |
+| RGB blue         |            38 | PWM output; common-anode, active-low            |
+| Buzzer           |            21 | Digital output; HIGH activates the buzzer       |
 
 ### Wiring and power notes
+
+![HomeSafe assembly and wiring](./docs/images/assembly.jpg)
 
 - Confirm the exact pin labels on each module before wiring. Module pinouts
   vary between manufacturers.
@@ -206,17 +210,17 @@ initialization. The device IP address is the value needed by the app.
 
 ### Sampling and decisions
 
-| Subsystem | Firmware behavior |
-|---|---|
-| DHT11 | Read every 2 seconds |
-| MQ-2 / MQ-135 | Read raw 12-bit ADC values every 250 ms |
-| Flame | Read every 100 ms; digital LOW is interpreted as flame detected |
-| PIR | Poll every 20 ms; HIGH is interpreted as motion |
-| Environmental hazard | Condition must remain detected for 1 second |
-| Environmental alarm cooldown | 5 seconds after all hazards clear |
-| Audio inference | 16 kHz mono continuous inference |
-| Audio event threshold | Non-`normal` class at confidence `>= 0.80` |
-| Audio event cooldown | 3 seconds |
+| Subsystem                    | Firmware behavior                                               |
+| ---------------------------- | --------------------------------------------------------------- |
+| DHT11                        | Read every 2 seconds                                            |
+| MQ-2 / MQ-135                | Read raw 12-bit ADC values every 250 ms                         |
+| Flame                        | Read every 100 ms; digital LOW is interpreted as flame detected |
+| PIR                          | Poll every 20 ms; HIGH is interpreted as motion                 |
+| Environmental hazard         | Condition must remain detected for 1 second                     |
+| Environmental alarm cooldown | 5 seconds after all hazards clear                               |
+| Audio inference              | 16 kHz mono continuous inference                                |
+| Audio event threshold        | Non-`normal` class at confidence `>= 0.80`                      |
+| Audio event cooldown         | 3 seconds                                                       |
 
 The default MQ-2 threshold is raw ADC `900`, and the default MQ-135 threshold is
 raw ADC `400`. These are placeholders, not universal gas-concentration limits.
@@ -404,12 +408,12 @@ Example successful response shape:
 
 ### Supported commands
 
-| Command | Data | Effect |
-|---|---|---|
-| `get_status` | none | Requests a complete current status |
-| `set_security_mode` | `{"armed": true/false}` | Arms or disarms security |
-| `set_security_schedule` | schedule fields plus enabled state | Saves/enables the daily schedule |
-| `silence_alarm` | none | Silences the security alarm only |
+| Command                 | Data                               | Effect                             |
+| ----------------------- | ---------------------------------- | ---------------------------------- |
+| `get_status`            | none                               | Requests a complete current status |
+| `set_security_mode`     | `{"armed": true/false}`            | Arms or disarms security           |
+| `set_security_schedule` | schedule fields plus enabled state | Saves/enables the daily schedule   |
+| `silence_alarm`         | none                               | Silences the security alarm only   |
 
 Schedule hours must be 0–23, minutes must be 0–59, and arm and disarm times
 must not be identical. See the app repository and
@@ -439,8 +443,7 @@ python scripts/test_alarm_controls.py
 
 These scripts can query status, verify snapshots and updates, arm/disarm
 security, silence the security alarm, and exercise reconnect behavior. They
-require a powered ESP32 with the firmware running and reachable on TCP port
-81.
+require a powered ESP32 with the firmware running and reachable on TCP port 81.
 
 Useful diagnostics:
 
