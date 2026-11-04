@@ -1,5 +1,7 @@
 # HomeSafe
 
+[View the project report](https://drive.google.com/file/d/1kJwGFeTJD6lwhxFl9YShAOyVjq19dWP8/view)
+
 HomeSafe is a local-first smart-home safety terminal built around an
 **ESP32-S3**. It combines environmental sensors, motion detection, an
 INMP441 microphone with an embedded Edge Impulse classifier, a physical alarm,
